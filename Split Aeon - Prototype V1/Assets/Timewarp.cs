@@ -6,10 +6,6 @@ using UnityEngine.UI;
 
 public class Timewarp : MonoBehaviour
 {
-
-    public GameObject firstWorldParent;
-    public GameObject secondWorldParent;
-
     public Transform particleLocation;
     public GameObject particleObject;
 
@@ -20,6 +16,11 @@ public class Timewarp : MonoBehaviour
 
     public GameObject flash;
 
+    bool isInPresent = true;
+
+    public CharacterController controller;
+    public GameObject player;
+
     private void Start()
     {
         volume.profile.TryGetSettings(out cromAb);
@@ -27,10 +28,10 @@ public class Timewarp : MonoBehaviour
     }
 
     private void Update()
-    {      
+    {
         if (Input.GetKeyDown(KeyCode.E))
         {
-            SwapWorlds();
+            //SwapWorlds();
         }
 
         if (cromAb.intensity.value >= 0)
@@ -42,28 +43,35 @@ public class Timewarp : MonoBehaviour
         {
             lensDis.intensity.value += 60 * Time.deltaTime;
         }
-
-
     }
 
     public void SwapWorlds()
     {
 
-        firstWorldParent.SetActive(!firstWorldParent.activeSelf);
-        secondWorldParent.SetActive(!secondWorldParent.activeSelf);
+        if (isInPresent)
+        {
+            controller.enabled = false;
+            player.transform.position = new Vector3(player.transform.position.x, player.transform.position.y - 50, player.transform.position.z);
+            controller.enabled = true;
+        }
+        else
+        {
+            controller.enabled = false;
+            player.transform.position = new Vector3(player.transform.position.x, player.transform.position.y + 50, player.transform.position.z);
+            controller.enabled = true;
+        }
 
+        TriggerTeleportEffect();
+
+        isInPresent = !isInPresent;
+    }
+
+    void TriggerTeleportEffect()
+    {
         GameObject.Instantiate(particleObject, particleLocation.position, particleLocation.rotation);
         GameObject.Instantiate(flash, FindObjectOfType<Canvas>().transform.position, new Quaternion(), FindObjectOfType<Canvas>().transform);
 
-        TriggerPostEffect();
-    }
-
-    void TriggerPostEffect()
-    {
         cromAb.intensity.value = 1;
         lensDis.intensity.value = -60;
-        
     }
-
-
 }
