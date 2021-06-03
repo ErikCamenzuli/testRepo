@@ -34,6 +34,11 @@ public class Player : MonoBehaviour
     public float mouseSensitivity = 100f;
     private float xRotation = 0f;
 
+    public Camera cam;
+
+    [Header("Animation")]
+    public Animator anim;
+
     #endregion
 
     private void Start()
@@ -41,9 +46,8 @@ public class Player : MonoBehaviour
         Cursor.lockState = CursorLockMode.Locked;
         movementSpeed = walkSpeed;
 
-        Camera.main.transform.SetParent(transform);
-        Camera.main.transform.localPosition = cameraPosStanding.transform.localPosition;
-        Camera.main.transform.rotation = Quaternion.identity;
+        cam.transform.localPosition = cameraPosStanding.transform.localPosition;
+        cam.transform.rotation = Quaternion.identity;
     }
 
     void Update()
@@ -91,10 +95,12 @@ public class Player : MonoBehaviour
         xRotation -= mouseYAxis;
         xRotation = Mathf.Clamp(xRotation, -90f, 90f);
 
-        Camera.main.transform.localRotation = Quaternion.Euler(xRotation, 0f, 0f);
+        cam.transform.localRotation = Quaternion.Euler(xRotation, 0f, 0f);
         transform.Rotate(Vector3.up * mouseXAxis);
 
         #endregion
+
+
 
         if (Input.GetKey(KeyCode.LeftShift) && !isCrouching)
         {
@@ -107,24 +113,36 @@ public class Player : MonoBehaviour
             isRunning = false;
         }
 
-        if (Input.GetKey(KeyCode.C) && !isRunning)
+        if (Input.GetKey(KeyCode.LeftControl) && !isRunning)
         {
             isCrouching = true;
 
             movementSpeed = crouchSpeed;
 
-            Camera.main.transform.localPosition = cameraPosCrouched.transform.localPosition;
+            cam.transform.localPosition = cameraPosCrouched.transform.localPosition;
         }
         else
         {
             isCrouching = false;
 
-            Camera.main.transform.localPosition = cameraPosStanding.transform.localPosition;
+            cam.transform.localPosition = cameraPosStanding.transform.localPosition;
         }
 
         if (!isRunning && !isCrouching)
         {
             movementSpeed = walkSpeed;
+        }
+
+        anim.SetBool("isRunning", isRunning && ((xMovement != 0) || (zMovement != 0)));
+
+        if (Input.GetKey(KeyCode.R))
+        {
+            anim.SetTrigger("Reload");
+        }
+
+        if (Input.GetKey(KeyCode.E))
+        {
+            anim.SetTrigger("Warp");
         }
 
     }
